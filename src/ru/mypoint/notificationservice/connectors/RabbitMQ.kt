@@ -1,10 +1,12 @@
 package ru.mypoint.notificationservice.connectors
 
-import com.rabbitmq.client.Channel
-import com.rabbitmq.client.Connection
-import com.rabbitmq.client.ConnectionFactory
+import com.rabbitmq.client.*
 import io.ktor.application.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
+import java.nio.charset.StandardCharsets
 
 @Suppress("unused") // Referenced in application.conf
 fun Application.rabbitModule() {
@@ -19,7 +21,11 @@ fun Application.rabbitModule() {
         queueNotification = environment.config.propertyOrNull("rabbitmq.queueNotification")?.getString(),
     )
 
-    RabbitMQ.setConnection(config, log)
+    if (RabbitMQ.setConnection(config, log) != null) {
+        RabbitMQ.getNotification()
+    } else {
+        RabbitMQ.checkConnection()
+    }
 }
 
 // класс для хранения настроек подключения
@@ -50,7 +56,7 @@ object RabbitMQ {
         factory.port = config.port?.toInt() ?: 5672
 
         connection = try {
-            factory.newConnection("Data-Bus")
+            factory.newConnection("Notification-Service")
         } catch (error: Throwable) {
             log.error("RabbitMQ connection error: " + error.message)
             null
@@ -63,13 +69,45 @@ object RabbitMQ {
     }
 
     fun getNotification() {
-        checkConnection()
+        try {
+            val channel = if (notificationChannel?.isOpen == true) notificationChannel!! else connection!!.createChannel()
 
+            channel.exchangeDeclare(configConnection?.exNotification, BuiltinExchangeType.DIRECT, true)
+            channel.queueDeclare(configConnection?.queueNotification, true, false, false, null)
+            channel.queueBind(configConnection?.queueNotification, configConnection?.exNotification, configConnection?.keyNotification)
+
+            val consumerTag = "NotificationConsumer"
+
+            logger?.info("[$consumerTag] Waiting for messages...")
+
+            val deliverCallback = DeliverCallback { consumerTag: String?, delivery: Delivery ->
+                val message = String(delivery.body, StandardCharsets.UTF_8)
+
+                logger?.info("[$consumerTag] Received message: '$message'")
+            }
+            val cancelCallback = CancelCallback { consumerTag: String? ->
+                logger?.warn("[$consumerTag] was canceled")
+
+//                checkConnection()
+            }
+
+            channel.basicConsume(configConnection?.queueNotification, true, consumerTag, deliverCallback, cancelCallback)
+        } catch (error: Throwable) {
+            logger?.error("RabbitMQ get notification error: " + error.message)
+        }
     }
 
-    private fun checkConnection() {
-        if (connection == null && configConnection != null && logger != null) {
-            setConnection(configConnection!!, logger!!)
+    fun checkConnection() {
+        if (configConnection != null && logger != null) {
+            runBlocking {
+                launch {
+                    while (setConnection(configConnection!!, logger!!) == null) {
+                        delay(10000L)
+                    }
+
+                    getNotification()
+                }
+            }
         }
     }
 }
