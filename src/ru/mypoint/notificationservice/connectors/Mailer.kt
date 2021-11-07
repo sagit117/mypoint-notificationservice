@@ -15,7 +15,7 @@ class Mailer(configMailer: ConfigMailer) {
         email.setCharset(configMailer.charSet)
     }
 
-    fun send(subject: String, msgHtml: String, emails: Set<String>, altMsgText: String? = "Your email client does not support HTML messages") {
+    fun send(subject: String, msgHtml: String, emails: Set<String>, altMsgText: String? = "Your email client does not support HTML messages"): String? {
         email.subject = subject
         email.setMsg(msgHtml)
 
@@ -26,7 +26,7 @@ class Mailer(configMailer: ConfigMailer) {
             email.addTo(mail)
         }
 
-        email.send()
+        return email.send()
     }
 }
 

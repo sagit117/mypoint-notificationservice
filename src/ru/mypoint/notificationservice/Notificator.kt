@@ -19,6 +19,6 @@ class Notificator(message: String) {
 
     /** нотификация при авторизации */
     private fun loginNotification(messageFromQueue: MessageFromQueue) {
-        SendlerEmail.sendEmail("Вы вошли в систему", entryMail(), setOf(messageFromQueue.userEmail), "Вы вошли в систему, если это были не Вы, восстановите пароль!")
+        SenderEmail.sendEmail("Вы вошли в систему", entryMail(), setOf(messageFromQueue.userEmail), "Вы вошли в систему, если это были не Вы, восстановите пароль!")
     }
 }
