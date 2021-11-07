@@ -35,5 +35,6 @@ dependencies {
     implementation "io.ktor:ktor-server-core:$ktor_version"
     implementation "io.ktor:ktor-gson:$ktor_version"
     implementation "com.rabbitmq:amqp-client:$rabbitmq_version"
+    implementation "org.apache.commons:commons-email:$mailer_version"
     testImplementation "io.ktor:ktor-server-tests:$ktor_version"
 }
