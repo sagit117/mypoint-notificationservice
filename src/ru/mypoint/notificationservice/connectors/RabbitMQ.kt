@@ -6,6 +6,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
+import ru.mypoint.notificationservice.Notificator
 import java.nio.charset.StandardCharsets
 
 @Suppress("unused") // Referenced in application.conf
@@ -84,11 +85,13 @@ object RabbitMQ {
                 val message = String(delivery.body, StandardCharsets.UTF_8)
 
                 logger?.info("[$consumerTag] Received message: '$message'")
+
+                Notificator(message)
             }
             val cancelCallback = CancelCallback { consumerTag: String? ->
                 logger?.warn("[$consumerTag] was canceled")
 
-//                checkConnection()
+                getNotification()
             }
 
             channel.basicConsume(configConnection?.queueNotification, true, consumerTag, deliverCallback, cancelCallback)
