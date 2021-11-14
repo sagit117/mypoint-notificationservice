@@ -7,12 +7,17 @@ import ru.mypoint.notificationservice.dto.TypeNotification
 /** класс контроллер для выбора способа нотификации */
 class Notificator(message: String) {
     init {
-        val messageFromQueue = Gson().fromJson(message, MessageFromQueue::class.java)
+        val messageFromQueue = try {
+            Gson().fromJson(message, MessageFromQueue::class.java)
+        } catch (error: Throwable) {
+            println(error.message)
+            null
+        }
 
-        when(messageFromQueue.type) {
+        when(messageFromQueue?.type) {
             TypeNotification.EMAIL -> emailNotification(messageFromQueue)
 
-            else -> println("undefined type" + messageFromQueue.type)
+            else -> println("undefined type" + messageFromQueue?.type)
         }
 
     }
