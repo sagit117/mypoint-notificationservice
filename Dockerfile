@@ -8,7 +8,10 @@ RUN ./gradlew --no-daemon shadowJar
 
 FROM openjdk:${VERSION}-jre
 
-COPY --from=BUILD /src/build/libs/notificationService-0.0.1-all.jar /bin/runner/run.jar
-WORKDIR /bin/runner
+COPY --from=BUILD /src/build/libs/notificationService-0.0.1-all.jar /bin/notificationservice/app.jar
+COPY ./resources/application.conf /bin/notificationservice/
+WORKDIR /bin/notificationservice
 
-CMD ["java","-jar","run.jar"]
+EXPOSE 8082:8080
+
+CMD ["java","-jar","app.jar", "-config=application.conf"]
