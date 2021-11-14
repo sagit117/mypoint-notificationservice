@@ -1,23 +1,17 @@
 package ru.mypoint
 
-import io.ktor.application.*
-import io.ktor.response.*
-import io.ktor.request.*
-import io.ktor.features.*
-import org.slf4j.event.*
-import io.ktor.routing.*
 import io.ktor.http.*
-import io.ktor.gson.*
-import kotlin.test.*
 import io.ktor.server.testing.*
+import junit.framework.Assert.assertEquals
+import org.junit.Test
+import ru.mypoint.notificationservice.module
 
 class ApplicationTest {
     @Test
     fun testRoot() {
         withTestApplication({ module(testing = true) }) {
-            handleRequest(HttpMethod.Get, "/").apply {
+            handleRequest(HttpMethod.Get, "/ping").apply {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("HELLO WORLD!", response.content)
             }
         }
     }
