@@ -23,10 +23,12 @@ fun Application.sendEmailModule() {
 object SenderEmail {
     var configMailer: ConfigMailer? = null
 
-    fun sendEmail(subject: String, msgHtml: String, emails: Set<String>, altMsgText: String? = null){
+    fun sendEmail(subject: String, msgHtml: String, emails: Set<String>, altMsgText: String? = null) {
         if (configMailer != null) {
-            Mailer(configMailer!!)
+            val result = Mailer(configMailer!!)
                 .send(subject, msgHtml, emails, altMsgText)
+
+            println(result)
         }
     }
 }

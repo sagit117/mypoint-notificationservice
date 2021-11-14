@@ -81,6 +81,9 @@ object RabbitMQ {
 
             logger?.info("[$consumerTag] Waiting for messages...")
 
+            /**
+             * Получение сообщение из очереди
+             */
             val deliverCallback = DeliverCallback { consumerTag: String?, delivery: Delivery ->
                 val message = String(delivery.body, StandardCharsets.UTF_8)
 
