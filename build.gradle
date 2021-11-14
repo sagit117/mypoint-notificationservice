@@ -8,7 +8,7 @@ buildscript {
     
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "gradle.plugin.com.github.johnrengelman:shadow:7.1.0"
+        classpath "gradle.plugin.com.github.johnrengelman:shadow:$shadow_version"
     }
 }
 
@@ -43,4 +43,11 @@ dependencies {
     implementation "com.rabbitmq:amqp-client:$rabbitmq_version"
     implementation "org.apache.commons:commons-email:$mailer_version"
     testImplementation "io.ktor:ktor-server-tests:$ktor_version"
+}
+
+shadowJar {
+    manifest {
+        attributes 'Main-Class': 'com.example.ApplicationKt'
+    }
+    mergeServiceFiles()
 }

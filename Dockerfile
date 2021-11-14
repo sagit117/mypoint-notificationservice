@@ -1,4 +1,4 @@
-ARG VERSION=8u151
+ARG VERSION=17
 
 FROM openjdk:${VERSION}-jdk as BUILD
 
@@ -6,7 +6,7 @@ COPY . /src
 WORKDIR /src
 RUN ./gradlew --no-daemon shadowJar
 
-FROM openjdk:${VERSION}-jre
+FROM openjdk:${VERSION}-jdk
 
 COPY --from=BUILD /src/build/libs/notificationService-0.0.1-all.jar /bin/notificationservice/app.jar
 COPY ./resources/prod.conf /bin/notificationservice/
