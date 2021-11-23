@@ -2,9 +2,9 @@ package ru.mypoint.notificationservice.connectors
 
 import com.rabbitmq.client.*
 import io.ktor.application.*
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
 import ru.mypoint.notificationservice.Notificator
 import java.nio.charset.StandardCharsets
@@ -48,23 +48,25 @@ object RabbitMQ {
     private var notificationChannel: Channel? = null
 
     fun setConnection(config: RabbitConnectionConfig, log: Logger): Connection? {
-        val factory = ConnectionFactory()
+        if (connection?.isOpen != true) {
+            val factory = ConnectionFactory()
 
-        factory.username = config.user
-        factory.password = config.password
-        factory.virtualHost = config.vHost
-        factory.host = config.host
-        factory.port = config.port?.toInt() ?: 5672
+            factory.username = config.user
+            factory.password = config.password
+            factory.virtualHost = config.vHost
+            factory.host = config.host
+            factory.port = config.port?.toInt() ?: 5672
 
-        connection = try {
-            factory.newConnection("Notification-Service")
-        } catch (error: Throwable) {
-            log.error("RabbitMQ connection error: " + error.message)
-            null
+            connection = try {
+                factory.newConnection("Notification-Service")
+            } catch (error: Throwable) {
+                log.error("RabbitMQ connection error: " + error.message)
+                null
+            }
+
+            if (logger == null) logger = log
+            if (configConnection == null) configConnection = config
         }
-
-        if (logger == null) logger = log
-        if (configConnection == null) configConnection = config
 
         return connection
     }
@@ -105,14 +107,12 @@ object RabbitMQ {
 
     fun checkConnection() {
         if (configConnection != null && logger != null) {
-            runBlocking {
-                launch {
-                    while (setConnection(configConnection!!, logger!!) == null) {
-                        delay(10000L)
-                    }
-
-                    getNotification()
+            GlobalScope.launch {
+                while (setConnection(configConnection!!, logger!!) == null) {
+                    delay(10000L)
                 }
+
+                getNotification()
             }
         }
     }

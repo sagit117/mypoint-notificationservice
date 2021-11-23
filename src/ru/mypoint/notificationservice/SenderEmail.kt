@@ -25,10 +25,8 @@ object SenderEmail {
 
     fun sendEmail(subject: String, msgHtml: String, emails: Set<String>, altMsgText: String? = null) {
         if (configMailer != null) {
-            val result = Mailer(configMailer!!)
+            Mailer(configMailer!!)
                 .send(subject, msgHtml, emails, altMsgText)
-
-            println(result)
         }
     }
 }
