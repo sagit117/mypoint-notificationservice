@@ -17,16 +17,15 @@ fun Application.sendEmailModule() {
         charSet = environment.config.property("mailer.charSet").getString()
     )
 
-    SenderEmail.configMailer = config
+    if (SenderEmail.mailer == null) {
+        SenderEmail.mailer = Mailer(config)
+    }
 }
 
 object SenderEmail {
-    var configMailer: ConfigMailer? = null
+    var mailer: Mailer? = null
 
     fun sendEmail(subject: String, msgHtml: String, emails: Set<String>, altMsgText: String? = null) {
-        if (configMailer != null) {
-            Mailer(configMailer!!)
-                .send(subject, msgHtml, emails, altMsgText)
-        }
+        mailer?.send(subject, msgHtml, emails, altMsgText)
     }
 }

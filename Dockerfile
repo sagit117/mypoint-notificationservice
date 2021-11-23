@@ -12,6 +12,6 @@ COPY --from=BUILD /src/build/libs/notificationService-0.0.1-all.jar /bin/notific
 COPY ./resources/prod.conf /bin/notificationservice/
 WORKDIR /bin/notificationservice
 
-EXPOSE 8082:8082
+EXPOSE 8082
 
 CMD ["java","-jar","app.jar", "-config=prod.conf"]
