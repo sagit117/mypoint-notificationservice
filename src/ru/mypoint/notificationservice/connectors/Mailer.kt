@@ -3,30 +3,27 @@ package ru.mypoint.notificationservice.connectors
 import org.apache.commons.mail.DefaultAuthenticator
 import org.apache.commons.mail.HtmlEmail
 
-class Mailer(configMailer: ConfigMailer) {
-    private val email = HtmlEmail()
+class Mailer(private val configMailer: ConfigMailer) {
+    fun send(subject: String, msgHtml: String, emails: Set<String>, altMsgText: String? = "Your email client does not support HTML messages") {
+        val email = HtmlEmail()
 
-    init {
         email.hostName = configMailer.hostName
         email.setSmtpPort(configMailer.smtpPort)
         email.setAuthenticator(DefaultAuthenticator(configMailer.user, configMailer.password))
         email.isSSLOnConnect = configMailer.isSSLOnConnect
         email.setFrom(configMailer.from)
         email.setCharset(configMailer.charSet)
-    }
-
-    fun send(subject: String, msgHtml: String, emails: Set<String>, altMsgText: String? = "Your email client does not support HTML messages"): String? {
         email.subject = subject
         email.setMsg(msgHtml)
 
         email.setHtmlMsg(msgHtml)
         email.setTextMsg(altMsgText)
 
-        for(mail in emails) {
+        for (mail in emails) {
             email.addTo(mail)
         }
 
-        return email.send()
+        email.send()
     }
 }
 
