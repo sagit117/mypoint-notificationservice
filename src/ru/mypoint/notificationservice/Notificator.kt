@@ -1,10 +1,11 @@
 package ru.mypoint.notificationservice
 
 import com.google.gson.Gson
+import ru.mypoint.notificationservice.dto.EmailMessage
 import ru.mypoint.notificationservice.dto.MessageFromQueue
 import ru.mypoint.notificationservice.dto.TypeNotification
 
-/** класс контроллер для выбора способа нотификации */
+/** Класс контроллер для выбора способа нотификации */
 class Notificator(message: String) {
     init {
         val messageFromQueue = try {
@@ -25,10 +26,12 @@ class Notificator(message: String) {
     /** нотификация по email */
     private fun emailNotification(messageFromQueue: MessageFromQueue) {
         SenderEmail.sendEmail(
-            messageFromQueue.subject,
-            messageFromQueue.template,
-            messageFromQueue.recipients,
-            messageFromQueue.altMsgText
+            EmailMessage(
+                messageFromQueue.subject,
+                messageFromQueue.template,
+                messageFromQueue.recipients,
+                messageFromQueue.altMsgText
+            )
         )
     }
 }
